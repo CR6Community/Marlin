@@ -142,9 +142,7 @@
 #define SDIO_SUPPORT      // Extra added by Creality
 #define SDIO_CLOCK 6000000 // In original source code overridden by Creality in sdio.h
 
-#define LED_CONTROL_PIN    PA6
-
-#define FIL_RUNOUT_PIN PA7 
+#define FIL_RUNOUT_PIN PA7
 // #define OPTO_SWITCH_PIN    PB2   // certification
 #define OPTO_SWITCH_PIN    PC6
 

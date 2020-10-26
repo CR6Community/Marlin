@@ -68,7 +68,6 @@ void DWINTouch_init() {
   #ifdef FIX_MOUNTED_PROBE
     OUT_WRITE(COM_PIN, 1);
     SET_INPUT(OPTO_SWITCH_PIN);
-    OUT_WRITE(LED_CONTROL_PIN, 0);
   #endif
 }
 
@@ -117,7 +116,7 @@ void DWINTouch_autohome_update_callback() {
     {
       if(waitway == 6)
       {
-        
+
         do_blocking_move_to_z(0);
         rtscheck.change_page(DWINTouchPage::MENU_ZOFFSET_LEVELING);
 
@@ -125,7 +124,7 @@ void DWINTouch_autohome_update_callback() {
       }
       else if(waitway == 4)
       {
-       
+
         do_blocking_move_to_z(0);
 
         switch (AxisUnitMode) {
@@ -146,10 +145,10 @@ void DWINTouch_autohome_update_callback() {
       }
       else if(waitway == 7)
       {
-      
+
         rtscheck.change_page(DWINTouchPage::MAIN_MENU);
-        
-        rtscheck.RTS_SndData(2, MOTOR_FREE_ICON_VP); 
+
+        rtscheck.RTS_SndData(2, MOTOR_FREE_ICON_VP);
         rtscheck.RTS_SndData(0, PRINT_PROCESS_TITLE_VP);
         rtscheck.RTS_SndData(0, PRINT_PROCESS_VP);
         delay(2);
@@ -167,7 +166,7 @@ void DWINTouch_autohome_update_callback() {
 
       if(finish_home) finish_home = false;
 
-      if(StartPrint_flag) 
+      if(StartPrint_flag)
       {
         StartPrint_flag = 0;
         recovery.info.current_position.z = 0;
@@ -190,7 +189,7 @@ void DWINTouch_print_completed_callback() {
   rtscheck.RTS_SndData(100, PRINT_PROCESS_VP);
   delay(1);
   rtscheck.RTS_SndData(100 ,PRINT_PROCESS_TITLE_VP);
- 
+
   rtscheck.change_page(DWINTouchPage::PRINT_FINISHED);
 
 }
@@ -232,7 +231,7 @@ void DWINTouch_heating_callback() {
   {
     rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
   }
-  
+
   heat_flag = 0;
 }
 

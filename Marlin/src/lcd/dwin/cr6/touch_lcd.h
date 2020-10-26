@@ -148,7 +148,7 @@
 /************struct**************/
 typedef struct DataBuf
 {
-    unsigned char len;  
+    unsigned char len;
     unsigned char head[2];
     unsigned char command;
     unsigned long addr;
@@ -193,7 +193,7 @@ enum class DWINTouchPage : unsigned int {
 
   MENU_TUNING = 41,
   MENU_PREPARE = 42,
-  
+
   MOVE_10MM = 43,
   MOVE_1MM = 44,
   MOVE_01MM = 45,
@@ -244,6 +244,8 @@ class RTSSHOW {
     void RTS_FilamentRunout();
     void RTS_FilamentLoaded();
 
+    void caseLightStatus(bool on); // nozzle LED
+
     void change_page(DWINTouchPage newPage);
     void refresh_page();
     inline bool has_fatal_error() { return m_current_page == DWINTouchPage::ERR_FATAL_UNSPECIFIED; };
@@ -260,7 +262,7 @@ class RTSSHOW {
 
 extern RTSSHOW rtscheck;
 
-enum PROC_COM 
+enum PROC_COM
 {
   MainEnterKey          = 0,
   AdjustEnterKey        = 1,
@@ -296,21 +298,21 @@ enum PROC_COM
   ErrorKey              = 31,
 };
 
-const unsigned long Addrbuf[] = 
+const unsigned long Addrbuf[] =
 {
   0x1002,  0x1004,  0x1006,  0x1008,  0x100A,
   0x100C,  0x1026,  0x1030,  0x1032,  0x1034,
   0x103A,  0x103E,  0x1044,  0x1046,  0x1048,
   0x104A,  0x104C,  0x1054,  0x1056,  0x105C,
   0x105F,  0x1100,  0x1102,  0x1104,  0x1106,
-  0x1108,  0x110A,  0x110C,  0x110E,  0x20D2,  
+  0x1108,  0x110A,  0x110C,  0x110E,  0x20D2,
   0x20D3,  0x111A
 };
 
 typedef struct
 {
   int16_t preheat_hotend_temp[2];
-  int16_t preheat_bed_temp[2];  
+  int16_t preheat_bed_temp[2];
   uint8_t preheat_fan_speed[2];
 }HMI_ValueTypeDef;
 

@@ -46,6 +46,7 @@
 #include "../../../feature/babystep.h"
 #include "../../../feature/e_parser.h"
 #include "../../../feature/powerloss.h"
+#include "../../../feature/caselight.h"
 #include "../../../gcode/gcode.h"
 
 #include "../../../feature/bedlevel/abl/abl.h"
@@ -112,7 +113,6 @@ char Checkfilenum = 0;
 char checkpause = 0;
 char FilenamesCount = 0;
 
-bool LEDStatus = true;
 RTSSHOW rtscheck;
 int Update_Time_Value = 0;
 unsigned long VolumeSet = 0x80;
@@ -126,7 +126,7 @@ char cmdbuf[20] = {0};
 
 unsigned short int checktime = 0;
 
-inline void RTS_line_to_current(AxisEnum axis) 
+inline void RTS_line_to_current(AxisEnum axis)
 {
   if (!planner.is_full())
   {
@@ -153,7 +153,7 @@ void RTSSHOW::refresh_page() {
 void RTSSHOW::RTS_SDCardInit(void)
 {
   lcd_sd_status = card.isMounted();
-  
+
   if(!lcd_sd_status)
   {
       card.mount();
@@ -167,14 +167,14 @@ void RTSSHOW::RTS_SDCardInit(void)
   {
     uint16_t fileCnt = card.get_num_Files();
     card.getWorkDirName();
-    if (card.filename[0] != '/') 
+    if (card.filename[0] != '/')
     {
       card.cdup();
     }
 
     int addrnum = 0;
     int num = 0;
-    for(uint16_t i = 0;(i < fileCnt) && (i < MaxFileNumber + addrnum);i ++) 
+    for(uint16_t i = 0;(i < fileCnt) && (i < MaxFileNumber + addrnum);i ++)
     {
       card.selectFileByIndex(fileCnt - 1 - i);
       char *pointFilename = card.longFilename;
@@ -223,7 +223,7 @@ void RTSSHOW::RTS_SDCardUpate(void)
     }
     else
     {
-      
+
       for(int i = 0;i < CardRecbuf.Filesum;i ++)
       {
         for(int j = 0;j < 10;j++)
@@ -250,7 +250,7 @@ void RTSSHOW::RTS_SDCardUpate(void)
   // represents to update file list
   if(CardUpdate && lcd_sd_status)
   {
-    for(uint16_t i = 0;i < CardRecbuf.Filesum;i ++) 
+    for(uint16_t i = 0;i < CardRecbuf.Filesum;i ++)
     {
       delay(3);
       RTS_SndData(CardRecbuf.Cardshowfilename[i], CardRecbuf.addr[i]);
@@ -272,7 +272,7 @@ void RTSSHOW::RTS_Init()
   RTS_SndData(feedrate_percentage, PRINT_SPEED_RATE_VP);
 
   /***************turn off motor*****************/
-  RTS_SndData(2, MOTOR_FREE_ICON_VP); 
+  RTS_SndData(2, MOTOR_FREE_ICON_VP);
 
   /***************transmit temperature to screen*****************/
   RTS_SndData(0, HEAD_SET_TEMP_VP);
@@ -286,8 +286,8 @@ void RTSSHOW::RTS_Init()
   #endif
   // turn on fans
   RTS_SndData(1, PRINTER_FANOPEN_TITLE_VP);
-  RTS_SndData(2, PRINTER_LEDOPEN_TITLE_VP);
-  LEDStatus = true;
+  // set caselight (nozzle LED) status
+  caseLightStatus(caselight.on);
 
   /*********transmit SD card filename to screen***************/
   RTS_SDCardInit();
@@ -352,9 +352,9 @@ void RTSSHOW::RTS_Init()
 
   RTS_SndData(HMI_ValueStruct.preheat_hotend_temp[1], ABS_HEAD_SET_DATA_VP);
   RTS_SndData(HMI_ValueStruct.preheat_bed_temp[1], ABS_BED_SET_DATA_VP);
-  
+
   rtscheck.change_page(DWINTouchPage::MAIN_MENU);
-  
+
   SERIAL_ECHOLN("===Initing RTS has finished===");
 }
 
@@ -395,7 +395,7 @@ int RTSSHOW::RTS_RecData()
     }
   }
 
-  // receive nothing  	
+  // receive nothing
   if(recnum < 1)
   {
     return -1;
@@ -405,7 +405,7 @@ int RTSSHOW::RTS_RecData()
     recdat.len = databuf[2];
     recdat.command = databuf[3];
     if(recdat.len == 0x03 && (recdat.command == 0x82 || recdat.command == 0x80) && (databuf[4] == 0x4F) && (databuf[5] == 0x4B))  //response for writing byte
-    {   
+    {
       memset(databuf,0, sizeof(databuf));
       recnum = 0;
       return -1;
@@ -665,7 +665,7 @@ void RTSSHOW::RTS_HandleData()
       {
         CardUpdate = true;
         RTS_SDCardUpate();
-        
+
         rtscheck.change_page(DWINTouchPage::FILE_SELECTION_P1);
       }
       else if(recdat.data[0] == 2)
@@ -682,14 +682,14 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 5)
       {
-        RTS_SndData(1, MOTOR_FREE_ICON_VP); 
+        RTS_SndData(1, MOTOR_FREE_ICON_VP);
         RTS_SndData(0, PRINT_PROCESS_TITLE_VP);
         RTS_SndData(0, PRINT_PROCESS_VP);
         delay(2);
         RTS_SndData(0, PRINT_TIME_HOUR_VP);
         RTS_SndData(0, PRINT_TIME_MIN_VP);
         print_job_timer.reset();
-        
+
         rtscheck.change_page(DWINTouchPage::MAIN_MENU);
       }
       else if(recdat.data[0] == 6)
@@ -697,7 +697,7 @@ void RTSSHOW::RTS_HandleData()
         waitway = 3;
         RTS_SndData(1, AUTO_BED_LEVEL_TITLE_VP);
         RTS_SndData(AUTO_BED_LEVEL_PREHEAT, AUTO_BED_PREHEAT_HEAD_DATA_VP);
-       
+
         rtscheck.change_page(DWINTouchPage::LEVELING);
 
         thermalManager.setTargetHotend(AUTO_BED_LEVEL_PREHEAT, 0);
@@ -739,32 +739,22 @@ void RTSSHOW::RTS_HandleData()
         // turn on the fan
         if(thermalManager.fan_speed[0] == 0)
         {
-          RTS_SndData(1, PRINTER_FANOPEN_TITLE_VP); 
+          RTS_SndData(1, PRINTER_FANOPEN_TITLE_VP);
           thermalManager.fan_speed[0] = 255;
         }
         else
         {
           // turn off the fan
-          RTS_SndData(2, PRINTER_FANOPEN_TITLE_VP); 
+          RTS_SndData(2, PRINTER_FANOPEN_TITLE_VP);
           thermalManager.fan_speed[0] = 0;
         }
       }
       else if(recdat.data[0] == 4)
       {
-        // turn on the LED
-        if(LEDStatus)
-        {
-          RTS_SndData(1, PRINTER_LEDOPEN_TITLE_VP); 
-          digitalWrite(LED_CONTROL_PIN, HIGH);
-          LEDStatus = false;
-        }
-        else
-        {
-          // turn off the LED
-          RTS_SndData(2, PRINTER_LEDOPEN_TITLE_VP); 
-          digitalWrite(LED_CONTROL_PIN, LOW);
-          LEDStatus = true;
-        }
+        // toggle nozzle LED
+        caselight.on = !caselight.on;
+        caselight.update(caselight.on ? 1 : 0);
+
       }
       break;
     case PrintSpeedEnterKey:
@@ -823,7 +813,7 @@ void RTSSHOW::RTS_HandleData()
         rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
       }
       break;
-      
+
     case ResumePrintKey:
       // This is apparently triggered when the resume option is pressed
       if (recdat.data[0] == 1 /*Resume*/) {
@@ -849,7 +839,7 @@ void RTSSHOW::RTS_HandleData()
       }
 
       had_filament_runout = false;
-      
+
       break;
 
     case ZoffsetEnterKey:
@@ -1126,18 +1116,18 @@ void RTSSHOW::RTS_HandleData()
       RTS_line_to_current(E_AXIS);
       RTS_SndData(10 * FilamentLOAD, HEAD_FILAMENT_LOAD_DATA_VP);
       break;
-    
+
     case PowerContinuePrintKey:
       if (wait_for_user) {
         auto state = EmergencyParser::State::EP_M108;
         emergency_parser.update(state, '\n');
-        
+
         rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
       } else if(recdat.data[0] == 1)
       {
         rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
 
-        if(recovery.dwin_flag) 
+        if(recovery.dwin_flag)
         {
           power_off_type_yes = 1;
 
@@ -1162,7 +1152,7 @@ void RTSSHOW::RTS_HandleData()
 
         wait_for_heatup = false;
         sdcard_pause_check = true;
-        
+
         RTS_SndData(1, MOTOR_FREE_ICON_VP);
         delay(500);
         waitway = 0;
@@ -1183,7 +1173,7 @@ void RTSSHOW::RTS_HandleData()
       NOLESS(HMI_ValueStruct.preheat_hotend_temp[0], MIN_E_TEMP);
 
       ui.material_preset[0].hotend_temp = HMI_ValueStruct.preheat_hotend_temp[0];
-       
+
       RTS_SndData(HMI_ValueStruct.preheat_hotend_temp[0], PLA_HEAD_SET_DATA_VP);
       break;
     case PLABedSetEnterKey:
@@ -1212,7 +1202,7 @@ void RTSSHOW::RTS_HandleData()
 
       RTS_SndData(HMI_ValueStruct.preheat_hotend_temp[1], ABS_HEAD_SET_DATA_VP);
       break;
-      
+
     case ABSBedSetEnterKey:
       HMI_ValueStruct.preheat_bed_temp[1] = recdat.data[0];
       NOMORE(HMI_ValueStruct.preheat_bed_temp[1], BED_MAX_TARGET);
@@ -1331,7 +1321,7 @@ void RTSSHOW::RTS_HandleData()
       // represents to update file list
       if(IS_SD_INSERTED())
       {
-        for(uint16_t i = 0;i < CardRecbuf.Filesum;i ++) 
+        for(uint16_t i = 0;i < CardRecbuf.Filesum;i ++)
         {
           delay(3);
           RTS_SndData(CardRecbuf.Cardshowfilename[i], CardRecbuf.addr[i]);
@@ -1348,21 +1338,15 @@ void RTSSHOW::RTS_HandleData()
 
       if(thermalManager.fan_speed[0])
       {
-        RTS_SndData(1, PRINTER_FANOPEN_TITLE_VP); 
+        RTS_SndData(1, PRINTER_FANOPEN_TITLE_VP);
       }
       else
       {
-        RTS_SndData(2, PRINTER_FANOPEN_TITLE_VP); 
+        RTS_SndData(2, PRINTER_FANOPEN_TITLE_VP);
       }
 
-      if(LEDStatus)
-      {
-        RTS_SndData(1, PRINTER_LEDOPEN_TITLE_VP); 
-      }
-      else
-      {
-        RTS_SndData(2, PRINTER_LEDOPEN_TITLE_VP); 
-      }
+       // set nozzle LED status
+       caseLightStatus(caselight.on);
 
       Percentrecord = card.percentDone() + 1;
       if(Percentrecord <= 100)
@@ -1415,7 +1399,7 @@ void EachMomentUpdate()
     if((power_off_type_yes == 0) && lcd_sd_status && recovery.dwin_flag)
     {
       power_off_type_yes = 1;
-      for(uint16_t i = 0;i < CardRecbuf.Filesum;i ++) 
+      for(uint16_t i = 0;i < CardRecbuf.Filesum;i ++)
       {
         if(!strcmp(CardRecbuf.Cardfilename[i], &recovery.info.sd_filename[1]))
         {
@@ -1493,8 +1477,8 @@ void EachMomentUpdate()
       // float temp_buf = thermalManager.temp_hotend[0].celsius;
       rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
       rtscheck.RTS_SndData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
-     
-      if(pause_action_flag && printingIsPaused() && !planner.has_blocks_queued()) 
+
+      if(pause_action_flag && printingIsPaused() && !planner.has_blocks_queued())
       {
         pause_action_flag = false;
         queue.enqueue_now_P(PSTR("G1 X0 Y0 F3000 "));
@@ -1556,7 +1540,20 @@ void RTSSHOW::RTS_FilamentLoaded() {
     rtscheck.RTS_SndData(9, FILAMENT_LOAD_ICON_VP);
 
     pause_action_flag = false;
-  } 
+  }
+}
+
+void RTSSHOW::caseLightStatus(bool on) {
+  // set nozzle LED status to on
+  if(on)
+  {
+    RTS_SndData(1, PRINTER_LEDOPEN_TITLE_VP);
+  }
+  else
+  {
+    // set nozzle LED status to off
+    RTS_SndData(2, PRINTER_LEDOPEN_TITLE_VP);
+  }
 }
 
 // looping at the loop function
@@ -1604,7 +1601,7 @@ void ErrorHanding()
         errorway = errornum = 0;  // don't try again
       }
     }
-    else 
+    else
     {
       errorway = errornum = 0;
     }

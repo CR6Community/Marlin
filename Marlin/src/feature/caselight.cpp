@@ -26,6 +26,10 @@
 
 #include "caselight.h"
 
+#ifdef DWIN_CREALITY_TOUCHLCD
+  #include "../../lcd/dwin/cr6/touch_lcd.h"
+#endif
+
 CaseLight caselight;
 
 uint8_t CaseLight::brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
@@ -75,6 +79,7 @@ void CaseLight::update(const bool sflag) {
 
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
       if (PWM_PIN(CASE_LIGHT_PIN))
+      {
         analogWrite(pin_t(CASE_LIGHT_PIN), (
           #if CASE_LIGHT_MAX_PWM == 255
             n10ct
@@ -82,8 +87,12 @@ void CaseLight::update(const bool sflag) {
             map(n10ct, 0, 255, 0, CASE_LIGHT_MAX_PWM)
           #endif
         ));
+        #ifdef DWIN_CREALITY_TOUCHLCD
+          rtscheck.caseLightStatus(on);
+        #endif
+      }
       else
-    #endif
+    #endif // !CASE_LIGHT_NO_BRIGHTNESS
       {
         const bool s = on ? !INVERT_CASE_LIGHT : INVERT_CASE_LIGHT;
         WRITE(CASE_LIGHT_PIN, s ? HIGH : LOW);
