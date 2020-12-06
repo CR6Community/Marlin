@@ -90,9 +90,9 @@
   //
   // #define TMC2208_STANDALONE
 
-  #define X_HARDWARE_SERIAL  MSerial4
-  #define Y_HARDWARE_SERIAL  MSerial4
-  #define Z_HARDWARE_SERIAL  MSerial4
+  #define X_HARDWARE_SERIAL  MSerial1
+  #define Y_HARDWARE_SERIAL  MSerial2
+  #define Z_HARDWARE_SERIAL  MSerial3
   #define E0_HARDWARE_SERIAL MSerial4
 
   //
