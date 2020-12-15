@@ -74,9 +74,9 @@
 #define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 #define	MACVERSION		STRING_CONFIG_H_AUTHOR
 #define	SOFTVERSION		SHORT_BUILD_VERSION
-#define MAC_LENGTH              235
-#define MAC_WIDTH               235
-#define MAC_HEIGHT              250
+#define MAC_LENGTH              400
+#define MAC_WIDTH               400
+#define MAC_HEIGHT              400
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -1001,7 +1001,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 0, -0.52 }
+#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0.2 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
