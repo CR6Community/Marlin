@@ -422,7 +422,7 @@ G29_TYPE GcodeSuite::G29() {
 
     planner.synchronize();
 
-    #if ENABLED(FIX_MOUNTED_PROBE)
+    #if ENABLED(NOZZLE_AS_PROBE)
       do_blocking_move_to_z(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
     #endif 
     
@@ -921,7 +921,7 @@ G29_TYPE GcodeSuite::G29() {
 
   report_current_position();
 
-  #if ENABLED(FIX_MOUNTED_PROBE)
+  #if ENABLED(NOZZLE_AS_PROBE)
     do_blocking_move_to_xy(safe_homing_xy);
   #endif 
 

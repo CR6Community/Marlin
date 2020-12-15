@@ -505,10 +505,10 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
   auto tare_probe= [](bool force) {
-    #if ENABLED(FIX_MOUNTED_PROBE) && PIN_EXISTS(OPTO_SWITCH)
+    #if ENABLED(NOZZLE_AS_PROBE) && PIN_EXISTS(OPTO_SWITCH)
       if((0 == READ(OPTO_SWITCH_PIN)) || force)
       {
-        SERIAL_ECHOLN("FIX_MOUNTED_PROBE: Taring the probe");
+        SERIAL_ECHOLN("NOZZLE_AS_PROBE: Taring the probe");
         WRITE(COM_PIN, HIGH);
         delay(200);
         WRITE(COM_PIN, LOW);
