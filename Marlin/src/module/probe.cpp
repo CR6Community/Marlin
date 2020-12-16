@@ -505,7 +505,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
   auto tare_probe= [](bool force) {
-    /*
+    
     #if ENABLED(NOZZLE_AS_PROBE) && PIN_EXISTS(OPTO_SWITCH)
       if((0 == READ(OPTO_SWITCH_PIN)) || force)
       {
@@ -518,7 +518,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
         endstops.hit_on_purpose();
       }
     #endif
-    */
+    
   };
   
 

@@ -423,7 +423,7 @@ G29_TYPE GcodeSuite::G29() {
     planner.synchronize();
 
     #if ENABLED(NOZZLE_AS_PROBE)
-      do_blocking_move_to_z(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+      //do_blocking_move_to_z(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
     #endif 
     
     if (!faux) remember_feedrate_scaling_off();
