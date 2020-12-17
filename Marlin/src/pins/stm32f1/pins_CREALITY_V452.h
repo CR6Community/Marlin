@@ -142,7 +142,7 @@
 
 #define FIL_RUNOUT_PIN PA7 
 // #define OPTO_SWITCH_PIN    PB2   // certification
-#define OPTO_SWITCH_PIN    PC6
+#define OPTO_SWITCH_PIN    PB2
 
 
 #define TEMP_TIMER_CHAN 4 // Channel of the timer to use for compare and interrupts

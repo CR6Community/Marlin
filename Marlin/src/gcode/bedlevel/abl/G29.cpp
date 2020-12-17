@@ -333,6 +333,7 @@ G29_TYPE GcodeSuite::G29() {
     // Jettison bed leveling data
     if (!seen_w && parser.seen('J')) {
       reset_bed_level();
+      TERN_(HAS_DISPLAY, ui.reset_status());
       G29_RETURN(false);
     }
 

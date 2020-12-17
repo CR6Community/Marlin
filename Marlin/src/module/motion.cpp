@@ -1292,7 +1292,7 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     DEBUG_ECHOLNPGM(")");
   }
 
-  #if ENABLED(FIX_MOUNTED_PROBE)
+  #if ENABLED(NOZZLE_AS_PROBE)
     if((axis == Z_AXIS))
     {
        bool is_in_probing_zone = READ(OPTO_SWITCH_PIN) == 0;
@@ -1583,7 +1583,7 @@ void homeaxis(const AxisEnum axis) {
     }
   #endif
 
-  #if ENABLED(FIX_MOUNTED_PROBE)
+  #if ENABLED(NOZZLE_AS_PROBE)
     if(axis == Z_AXIS)
     {
       DEBUG_ECHOLNPAIR(">>> is_homing_z (", READ(OPTO_SWITCH_PIN), ")");

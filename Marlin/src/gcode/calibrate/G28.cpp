@@ -472,7 +472,7 @@ void GcodeSuite::G28() {
 
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
 
-  TERN_(FIX_MOUNTED_PROBE, endstops.enable_z_probe(false));
+  TERN_(NOZZLE_AS_PROBE, endstops.enable_z_probe(false));
 
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
 
