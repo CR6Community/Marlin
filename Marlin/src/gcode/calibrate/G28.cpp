@@ -282,7 +282,7 @@ void GcodeSuite::G28() {
       if (DEBUGGING(LEVELING)) debug_current(PSTR("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
     #endif
   #endif
-
+  
   TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing_t slow_homing = begin_slow_homing());
 
   // Always home with tool 0 active
