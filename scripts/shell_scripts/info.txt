@@ -1,0 +1,4 @@
+Shell scripts to compile firmware for v4.5.2 an v4.5.3 Creality motherboards.
+Also adds DW_SET folder for touchscreen.
+
+Ubuntu 20.04 WSL with git v2.25.1, PlatformIO Core v5.1.1 and PowerShell v7.1.3 installed.
