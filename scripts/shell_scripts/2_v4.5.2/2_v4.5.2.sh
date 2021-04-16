@@ -15,10 +15,5 @@ mv Marlin/Configuration.h.org Marlin/Configuration.h
 mv Marlin/Configuration_adv.h.org Marlin/Configuration_adv.h
 cp .pio/build/STM32F103RET6_creality/firmware-*.bin scripts/shell_scripts/2_v4.5.2/
 cd ../CR-6-touchscreen/
-if [ -e alt_build.ps1 ]
-then
-    pwsh alt_build.ps1
-else
-    pwsh build.ps1
-fi
-cp -R build/tmp/DWIN_SET ../Marlin/scripts/shell_scripts/2_v4.5.2/
+pwsh build.ps1 -nozip
+cp -r build/tmp/DWIN_SET ../Marlin/scripts/shell_scripts/2_v4.5.2/
