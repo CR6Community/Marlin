@@ -17,8 +17,8 @@ if [[ ! $src ]]
         tr=CR-6-touchscreen
         mr=Marlin
     else
-        troot=CR-6-touchscreen-extui
-        mroot=Marlin-extui
+        tr=CR-6-touchscreen-extui
+        mr=Marlin-extui
 fi 
 
 rm -r DWIN_SET firmware*.bin
