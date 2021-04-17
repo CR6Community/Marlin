@@ -16,4 +16,4 @@ mv Marlin/Configuration_adv.h.org Marlin/Configuration_adv.h
 cp .pio/build/STM32F103RET6_creality/firmware-*.bin scripts/shell_scripts/3_v4.5.3/
 cd ../CR-6-touchscreen-extui/
 pwsh build.ps1 -nozip
-cp -r build/tmp/DWIN_SET ../Marlin/scripts/shell_scripts/3_v4.5.3/
+cp -r build/tmp/DWIN_SET ../Marlin-extui/scripts/shell_scripts/3_v4.5.3/
