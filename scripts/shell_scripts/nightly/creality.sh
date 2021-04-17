@@ -38,5 +38,5 @@ cp .pio/build/STM32F103RET6_creality/firmware-*.bin scripts/shell_scripts/nightl
 cd ../$tr/
 pwsh build.ps1 -nozip
 cp -r build/tmp/DWIN_SET ../$mr/scripts/shell_scripts/nightly/
-
+rm -r ../$mr/.pio/
 exit 0
