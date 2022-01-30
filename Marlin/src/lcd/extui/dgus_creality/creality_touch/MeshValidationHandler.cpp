@@ -77,7 +77,7 @@ void MeshValidationHandler::Start() {
     prev_feedrate = ExtUI::getFeedrate_mm_s();
     ExtUI::setFeedrate_mm_s(MESH_VALIDATION_PATTERN_FEEDRATE);
 
-    SetStatusMessage("Starting...");
+    SetStatusMessage("Starting. Prepare tweezers..");
 }
 
 void MeshValidationHandler::Cancel() {
