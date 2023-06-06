@@ -230,8 +230,9 @@
 #define BEEPER_PIN                          PC7
 
 //
-// TFT with FSMC interface
+// LCD / Controller
 //
+
 #if HAS_FSMC_TFT
   //#define TFT_DRIVER             LERDGE_ST7796
 

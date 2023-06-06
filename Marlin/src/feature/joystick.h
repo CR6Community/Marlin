@@ -32,13 +32,13 @@
 class Joystick {
   friend class Temperature;
   private:
-    #if HAS_JOY_ADC_X
+    #if ENABLED(HAS_JOY_ADC_X)
       static temp_info_t x;
     #endif
-    #if HAS_JOY_ADC_Y
+    #if ENABLED(HAS_JOY_ADC_Y)
       static temp_info_t y;
     #endif
-    #if HAS_JOY_ADC_Z
+    #if ENABLED(HAS_JOY_ADC_Z)
       static temp_info_t z;
     #endif
   public:

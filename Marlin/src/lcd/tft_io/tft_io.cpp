@@ -20,34 +20,18 @@
  *
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "tft_io.h"
 
 #if HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT
 
-#include "tft_io.h"
-#include "tft_ids.h"
-
-#if TFT_DRIVER == ST7735 || TFT_DRIVER == AUTO
-  #include "st7735.h"
-#endif
-#if TFT_DRIVER == ST7789 || TFT_DRIVER == AUTO
-  #include "st7789v.h"
-#endif
-#if TFT_DRIVER == ST7796 || TFT_DRIVER == AUTO
-  #include "st7796s.h"
-#endif
-#if TFT_DRIVER == R61505 || TFT_DRIVER == AUTO
-  #include "r65105.h"
-#endif
-#if TFT_DRIVER == ILI9488 || TFT_DRIVER == ILI9488_ID1 || TFT_DRIVER == AUTO
-  #include "ili9488.h"
-#endif
-#if TFT_DRIVER == SSD1963 || TFT_DRIVER == AUTO
-  #include "ssd1963.h"
-#endif
-
-#include "ili9341.h"
+#include "st7735.h"
+#include "st7789v.h"
+#include "st7796s.h"
+#include "r65105.h"
 #include "ili9328.h"
+#include "ili9341.h"
+#include "ili9488.h"
+#include "ssd1963.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
 #include "../../core/debug_out.h"
@@ -65,13 +49,13 @@ if (lcd_id != 0xFFFFFFFF) return;
   #if PIN_EXISTS(TFT_RESET)
     OUT_WRITE(TFT_RESET_PIN, HIGH);
     delay(10);
-    WRITE(TFT_RESET_PIN, LOW);
+    OUT_WRITE(TFT_RESET_PIN, LOW);
     delay(10);
-    WRITE(TFT_RESET_PIN, HIGH);
+    OUT_WRITE(TFT_RESET_PIN, HIGH);
   #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT)
-    WRITE(TFT_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT));
+    OUT_WRITE(TFT_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT));
   #endif
 
   // io.Init();
@@ -149,7 +133,7 @@ if (lcd_id != 0xFFFFFFFF) return;
   #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
-    WRITE(TFT_BACKLIGHT_PIN, HIGH);
+    OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
   #endif
 }
 
@@ -252,4 +236,4 @@ void TFT_IO::write_esc_sequence(const uint16_t *Sequence) {
   io.DataTransferEnd();
 }
 
-#endif // HAS_SPI_TFT || HAS_FSMC_TFT || HAS_LTDC_TFT
+#endif // HAS_SPI_TFT || HAS_FSMC_TFT

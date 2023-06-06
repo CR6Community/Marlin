@@ -48,7 +48,7 @@
     return &top - reinterpret_cast<char*>(sbrk(0));
   }
 
-#elif defined(__AVR__)
+#else
 
   extern char* __brkval;
   extern char __bss_end;

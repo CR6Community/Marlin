@@ -84,7 +84,9 @@ char GCodeQueue::injected_commands[64]; // = { 0 }
 
 
 void GCodeQueue::RingBuffer::commit_command(bool skip_ok
-  OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
+  #if HAS_MULTI_SERIAL
+    , serial_index_t serial_ind/*=-1*/
+  #endif
 ) {
   commands[index_w].skip_ok = skip_ok;
   TERN_(HAS_MULTI_SERIAL, commands[index_w].port = serial_ind);
@@ -98,7 +100,9 @@ void GCodeQueue::RingBuffer::commit_command(bool skip_ok
  * Return false for a full buffer, or if the 'command' is a comment.
  */
 bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
-  OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind/*=-1*/)
+  #if HAS_MULTI_SERIAL
+    , serial_index_t serial_ind/*=-1*/
+  #endif
 ) {
   if (*cmd == ';' || length >= BUFSIZE) return false;
   strcpy(commands[index_w].buffer, cmd);

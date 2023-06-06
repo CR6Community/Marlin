@@ -64,13 +64,13 @@ typedef struct {
     Repeat stored_repeat;
   #endif
 
-  #if HAS_HOME_OFFSET
+  #if ENABLED(HAS_HOME_OFFSET)
     xyz_pos_t home_offset;
   #endif
-  #if HAS_POSITION_SHIFT
+  #if ENABLED(HAS_POSITION_SHIFT)
     xyz_pos_t position_shift;
   #endif
-  #if HAS_MULTI_EXTRUDER
+  #if ENABLED(HAS_MULTI_EXTRUDER)
     uint8_t active_extruder;
   #endif
 
@@ -78,17 +78,17 @@ typedef struct {
     float filament_size[EXTRUDERS];
   #endif
 
-  #if HAS_HOTEND
+  #if ENABLED(HAS_HOTEND)
     celsius_t target_temperature[HOTENDS];
   #endif
-  #if HAS_HEATED_BED
+  #if ENABLED(HAS_HEATED_BED)
     celsius_t target_temperature_bed;
   #endif
-  #if HAS_FAN
+  #if ENABLED(HAS_FAN)
     uint8_t fan_speed[FAN_COUNT];
   #endif
 
-  #if HAS_LEVELING
+  #if ENABLED(HAS_LEVELING)
     float fade;
   #endif
 
@@ -120,7 +120,7 @@ typedef struct {
     bool raised:1;                // Raised before saved
     bool dryrun:1;                // M111 S8
     bool allow_cold_extrusion:1;  // M302 P1
-    #if HAS_LEVELING
+    #if ENABLED(HAS_LEVELING)
       bool leveling:1;            // M420 S
     #endif
     #if DISABLED(NO_VOLUMETRICS)

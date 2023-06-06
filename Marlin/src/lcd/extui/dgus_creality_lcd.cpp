@@ -26,7 +26,6 @@
  * DGUS implementation written by coldtobi in 2019 for Marlin
  */
 
-#define DEBUG_OUT 1
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
@@ -115,20 +114,15 @@ bool hasPrintTimer = false;
   }
 
   void onFilamentRunout(const extruder_t extruder) {
-    #ifdef FILAMENT_RUNOUT_SCRIPT
     // Only navigate to filament runout screen when we don't use M600 for changing the filament - otherwise it gets confusing for the user
     if (strcmp_P(FILAMENT_RUNOUT_SCRIPT, PSTR("M600")) != 0) {
       ScreenHandler.FilamentRunout();
     }
-    #endif
   }
 
   void onUserConfirmed() {
     DEBUG_ECHOLN("User confirmation invoked");
 
-#if M600_PURGE_MORE_RESUMABLE
-    setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
-#endif
     ExtUI::setUserConfirmed();
   }
 

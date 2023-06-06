@@ -49,10 +49,6 @@
   #define BOARD_INFO_NAME "RAMPS 1.4"
 #endif
 
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "SimRap 1.4"
-#endif
-
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
@@ -137,11 +133,11 @@
 #define TEMP_1_PIN                             1  // Analog Input
 #define TEMP_BED_PIN                           2  // Analog Input
 
-// SPI for MAX Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
-  #define TEMP_0_CS_PIN                       66  // Don't use 53 if using Display/SD card
+  #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card
 #else
-  #define TEMP_0_CS_PIN                       66  // Don't use 49 (SD_DETECT_PIN)
+  #define MAX6675_SS_PIN                      66  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -196,7 +192,7 @@
 #else                                             // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
   #define FAN_PIN                   RAMPS_D9_PIN
   #define HEATER_BED_PIN            RAMPS_D8_PIN
-  #if HOTENDS == 1 && DISABLED(HEATERS_PARALLEL)
+  #if HOTENDS == 1
     #define FAN1_PIN                MOSFET_D_PIN
   #else
     #define HEATER_1_PIN            MOSFET_D_PIN
@@ -212,7 +208,6 @@
 //
 #define SDSS                                  53
 #define LED_PIN                               13
-#define NEOPIXEL_PIN                          71
 
 #ifndef FILWIDTH_PIN
   #define FILWIDTH_PIN                         5  // Analog Input on AUX2
@@ -220,7 +215,7 @@
 
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                      21
+  #define FIL_RUNOUT_PIN                       4
 #endif
 
 #ifndef PS_ON_PIN
@@ -394,54 +389,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
-
-  #define TFT_A0_PIN                          43
-  #define TFT_CS_PIN                          49
-  #define TFT_DC_PIN                          43
-  #define TFT_SCK_PIN                 SD_SCK_PIN
-  #define TFT_MOSI_PIN               SD_MOSI_PIN
-  #define TFT_MISO_PIN               SD_MISO_PIN
-  #define LCD_USE_DMA_SPI
-
-  #define BTN_EN1                             40
-  #define BTN_EN2                             63
-  #define BTN_ENC                             59
-  #define BEEPER_PIN                          42
-
-  #define TOUCH_CS_PIN                        33
-  #define SD_DETECT_PIN                       41
-
-  #define HAS_SPI_FLASH                        1
-  #if HAS_SPI_FLASH
-    #define SPI_DEVICE                         1
-    #define SPI_FLASH_SIZE             0x1000000  // 16MB
-    #define W25QXX_CS_PIN                     31
-    #define W25QXX_MOSI_PIN          SD_MOSI_PIN
-    #define W25QXX_MISO_PIN          SD_MISO_PIN
-    #define W25QXX_SCK_PIN            SD_SCK_PIN
-  #endif
-
-  #define TFT_BUFFER_SIZE                 0xFFFF
-  #ifndef TFT_DRIVER
-    #define TFT_DRIVER                    ST7796
-  #endif
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION            63934
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION            63598
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                  -1
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -20
-  #endif
-
-  #define BTN_BACK                            70
-
-#elif HAS_WIRED_LCD
+#if HAS_WIRED_LCD
 
   //
   // LCD Display output pins
@@ -674,18 +622,14 @@
         #define BTN_EN1                       37
         #define BTN_EN2                       35
         #define BTN_ENC                       31
-        #define SD_DETECT_PIN                 41
       #endif
 
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN                 49
         #define KILL_PIN                      41
       #endif
+
     #endif
-
-    // CUSTOM SIMULATOR INPUTS
-    #define BTN_BACK                          70
-
   #endif // IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD

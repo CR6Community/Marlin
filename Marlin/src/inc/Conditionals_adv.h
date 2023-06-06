@@ -26,10 +26,6 @@
  * Defines that depend on advanced configuration.
  */
 
-#ifndef AXIS_RELATIVE_MODES
-  #define AXIS_RELATIVE_MODES {}
-#endif
-
 #ifdef SWITCHING_NOZZLE_E1_SERVO_NR
   #define SWITCHING_NOZZLE_TWO_SERVOS 1
 #endif
@@ -79,7 +75,7 @@
   #define SERVO_DELAY { 50 }
 #endif
 
-#if !HAS_EXTRUDERS
+#if EXTRUDERS == 0
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
   #undef TEMP_SENSOR_1
@@ -107,9 +103,6 @@
   #undef THERMAL_PROTECTION_PERIOD
   #undef WATCH_TEMP_PERIOD
   #undef SHOW_TEMP_ADC_VALUES
-  #undef LCD_SHOW_E_TOTAL
-  #undef MANUAL_E_MOVES_RELATIVE
-  #undef STEALTHCHOP_E
 #endif
 
 #if TEMP_SENSOR_BED == 0
@@ -418,12 +411,6 @@
   #define POLL_JOG
 #endif
 
-#if X2_HOME_DIR > 0
-  #define X2_HOME_TO_MAX 1
-#elif X2_HOME_DIR < 0
-  #define X2_HOME_TO_MIN 1
-#endif
-
 #ifndef HOMING_BUMP_MM
   #define HOMING_BUMP_MM { 0, 0, 0 }
 #endif
@@ -509,37 +496,6 @@
   #endif
 #endif
 
-// Remove unused STEALTHCHOP flags
-#if LINEAR_AXES < 6
-  #undef STEALTHCHOP_K
-  #undef CALIBRATION_MEASURE_KMIN
-  #undef CALIBRATION_MEASURE_KMAX
-  #if LINEAR_AXES < 5
-    #undef STEALTHCHOP_J
-    #undef CALIBRATION_MEASURE_JMIN
-    #undef CALIBRATION_MEASURE_JMAX
-    #if LINEAR_AXES < 4
-      #undef STEALTHCHOP_I
-      #undef CALIBRATION_MEASURE_IMIN
-      #undef CALIBRATION_MEASURE_IMAX
-      #if LINEAR_AXES < 3
-        #undef Z_IDLE_HEIGHT
-        #undef STEALTHCHOP_Z
-        #undef Z_PROBE_SLED
-        #undef Z_SAFE_HOMING
-        #undef HOME_Z_FIRST
-        #undef HOMING_Z_WITH_PROBE
-        #undef ENABLE_LEVELING_FADE_HEIGHT
-        #undef NUM_Z_STEPPER_DRIVERS
-        #undef CNC_WORKSPACE_PLANES
-        #if LINEAR_AXES < 2
-          #undef STEALTHCHOP_Y
-        #endif
-      #endif
-    #endif
-  #endif
-#endif
-
 //
 // SD Card connection methods
 // Defined here so pins and sanity checks can use them
@@ -587,7 +543,7 @@
 #endif
 
 #if BOTH(HAS_TFT_LVGL_UI, CUSTOM_MENU_MAIN)
-  #define _HAS_1(N) (defined(MAIN_MENU_ITEM_##N##_DESC) && defined(MAIN_MENU_ITEM_##N##_GCODE))
+  #define _HAS_1(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
   #define HAS_USER_ITEM(V...) DO(HAS,||,V)
 #else
   #define HAS_USER_ITEM(N) 0

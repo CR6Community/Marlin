@@ -16,7 +16,7 @@ Ensure you take the right assets: the `firmware[suffix].bin`. You should not dow
 
 ### Development and compile-it-yourself
 
-There are several example configurations available for your convenience which can be found in the [`config`](./config) directory. Copy the files from the config subdirectory which reflects the needed hardware configuration to the root of the [`Marlin`](./Marlin) directory. To build the firmware Visual Studio Code with the Platform.io plugin installed is needed. Please set the Platform.io environment variable `default_envs` in the file `platformio.ini` to the string found in the previous copied file `platformio-environment.txt`.
+There are several example configurations available for convenience. You can find them in the [`config`](./config) directory. Copy the files from the rioght directory to the root of the repository and you can directly build them if you have the Platform.io plugin installed in Visual Studio code. You will need to set the Platform.io environment to the environment in the file `platformio-environment.txt`.
 
 Examples for the following hardware configurations are currently available:
 
@@ -78,6 +78,7 @@ For general Marlin support, please check:
 - [Marlin Discord](https://discord.gg/n5NJ59y) - Discuss issues with Marlin users and developers
 - Facebook Group ["Marlin Firmware"](https://www.facebook.com/groups/1049718498464482/)
 - RepRap.org [Marlin Forum](http://forums.reprap.org/list.php?415)
+- [Tom's 3D Forums](https://forum.toms3d.org/)
 - Facebook Group ["Marlin Firmware for 3D Printers"](https://www.facebook.com/groups/3Dtechtalk/)
 - [Marlin Configuration](https://www.youtube.com/results?search_query=marlin+configuration) on YouTube
 

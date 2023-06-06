@@ -48,14 +48,14 @@
 #endif
 
 #if E_MANUAL > 1
-  #define MULTI_E_MANUAL 1
+  #define MULTI_MANUAL 1
 #endif
 
 #if HAS_DISPLAY
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+#if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
   #include "../module/motion.h" // for active_extruder
 #endif
@@ -111,13 +111,13 @@
 
 #if PREHEAT_COUNT
   typedef struct {
-    #if HAS_HOTEND
+    #if ENABLED(HAS_HOTEND)
       celsius_t hotend_temp;
     #endif
-    #if HAS_HEATED_BED
+    #if ENABLED(HAS_HEATED_BED)
       celsius_t bed_temp;
     #endif
-    #if HAS_FAN
+    #if ENABLED(HAS_FAN)
       uint16_t fan_speed;
     #endif
   } preheat_t;
@@ -129,18 +129,18 @@
   class ManualMove {
   private:
     static AxisEnum axis;
-    #if MULTI_E_MANUAL
+    #if MULTI_MANUAL
       static int8_t e_index;
     #else
       static int8_t constexpr e_index = 0;
     #endif
     static millis_t start_time;
-    #if IS_KINEMATIC
+    #if ENABLED(IS_KINEMATIC)
       static xyze_pos_t all_axes_destination;
     #endif
   public:
     static float menu_scale;
-    #if IS_KINEMATIC
+    #if ENABLED(IS_KINEMATIC)
       static float offset;
     #endif
     template <typename T>
@@ -182,7 +182,11 @@
       static bool constexpr processing = false;
     #endif
     static void task();
-    static void soon(const AxisEnum axis OPTARG(MULTI_E_MANUAL, const int8_t eindex=active_extruder));
+    static void soon(const AxisEnum axis
+      #if MULTI_MANUAL
+        , const int8_t eindex=-1
+      #endif
+    );
   };
 
 #endif
@@ -200,11 +204,13 @@ public:
 
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
-    static void set_language(const uint8_t lang);
-  #endif
-
-  #if HAS_MARLINUI_U8GLIB
-    static void update_language_font();
+    static inline void set_language(const uint8_t lang) {
+      if (lang < NUM_LANGUAGES) {
+        language = lang;
+        return_to_status();
+        refresh();
+      }
+    }
   #endif
 
   #if ENABLED(SOUND_MENU_ITEM)
@@ -237,22 +243,6 @@ public:
   #if ENABLED(SDSUPPORT)
     #define MEDIA_MENU_GATEWAY TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media)
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
-  #endif
-
-  #if HAS_LCD_BRIGHTNESS
-    #ifndef MIN_LCD_BRIGHTNESS
-      #define MIN_LCD_BRIGHTNESS   1
-    #endif
-    #ifndef MAX_LCD_BRIGHTNESS
-      #define MAX_LCD_BRIGHTNESS 255
-    #endif
-    #ifndef DEFAULT_LCD_BRIGHTNESS
-      #define DEFAULT_LCD_BRIGHTNESS MAX_LCD_BRIGHTNESS
-    #endif
-    static uint8_t brightness;
-    static bool backlight;
-    static void set_brightness(const uint8_t value);
-    FORCE_INLINE static void refresh_brightness() { set_brightness(brightness); }
   #endif
 
   #if ENABLED(DWIN_CREALITY_LCD)
@@ -312,17 +302,6 @@ public:
   #endif
 
   #if HAS_STATUS_MESSAGE
-
-    #if HAS_WIRED_LCD
-      #if ENABLED(STATUS_MESSAGE_SCROLLING)
-        #define MAX_MESSAGE_LENGTH _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH))
-      #else
-        #define MAX_MESSAGE_LENGTH (MAX_LANG_CHARSIZE * (LCD_WIDTH))
-      #endif
-    #else
-      #define MAX_MESSAGE_LENGTH 63
-    #endif
-
     static char status_message[];
     static uint8_t alert_level; // Higher levels block lower levels
 
@@ -470,13 +449,10 @@ public:
     static PGM_P get_preheat_label(const uint8_t m);
   #endif
 
-  #if SCREENS_CAN_TIME_OUT
-    static inline void reset_status_timeout(const millis_t ms) { return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS; }
-  #else
-    static inline void reset_status_timeout(const millis_t) {}
-  #endif
-
   #if HAS_LCD_MENU
+    #if LCD_TIMEOUT_TO_STATUS
+      static millis_t return_to_status_ms;
+    #endif
 
     #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
@@ -502,12 +478,15 @@ public:
     static void set_selection(const bool sel) { selection = sel; }
     static bool update_selection();
 
+    static bool lcd_clicked;
+    static bool use_click();
+
     static void synchronize(PGM_P const msg=nullptr);
 
     static screenFunc_t currentScreen;
     static bool screen_changed;
     static void goto_screen(const screenFunc_t screen, const uint16_t encoder=0, const uint8_t top=0, const uint8_t items=0);
-    static void push_current_screen();
+    static void save_previous_screen();
 
     // goto_previous_screen and go_back may also be used as menu item callbacks
     static void _goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back));
@@ -522,12 +501,12 @@ public:
       static void lcd_in_status(const bool inStatus);
     #endif
 
-    FORCE_INLINE static bool screen_is_sticky() {
-      return TERN1(SCREENS_CAN_TIME_OUT, defer_return_to_status);
-    }
-
     FORCE_INLINE static void defer_status_screen(const bool defer=true) {
-      TERN(SCREENS_CAN_TIME_OUT, defer_return_to_status = defer, UNUSED(defer));
+      #if LCD_TIMEOUT_TO_STATUS > 0
+        defer_return_to_status = defer;
+      #else
+        UNUSED(defer);
+      #endif
     }
 
     static inline void goto_previous_screen_no_defer() {
@@ -550,29 +529,15 @@ public:
 
     static void draw_select_screen_prompt(PGM_P const pref, const char * const string=nullptr, PGM_P const suff=nullptr);
 
-  #else
+  #elif HAS_WIRED_LCD
 
-    static constexpr bool on_status_screen() { return true; }
-
-    #if HAS_WIRED_LCD
-      FORCE_INLINE static void run_current_screen() { status_screen(); }
-    #endif
-
-  #endif
-
-  #if EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
-    static bool lcd_clicked;
-    static inline bool use_click() {
-      const bool click = lcd_clicked;
-      lcd_clicked = false;
-      return click;
-    }
-  #else
     static constexpr bool lcd_clicked = false;
-    static inline bool use_click() { return false; }
+    static constexpr bool on_status_screen() { return true; }
+    FORCE_INLINE static void run_current_screen() { status_screen(); }
+
   #endif
 
-  #if ENABLED(ADVANCED_PAUSE_FEATURE) && EITHER(HAS_LCD_MENU, EXTENSIBLE_UI)
+  #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
     static void pause_show_message(const PauseMessage message, const PauseMode mode=PAUSE_MODE_SAME, const uint8_t extruder=active_extruder);
   #else
     static inline void _pause_show_message() {}
@@ -682,18 +647,16 @@ public:
 
 private:
 
-  #if SCREENS_CAN_TIME_OUT
-    static millis_t return_to_status_ms;
-    static bool defer_return_to_status;
-  #else
-    static constexpr bool defer_return_to_status = false;
-  #endif
-
   #if HAS_STATUS_MESSAGE
     static void finish_status(const bool persist);
   #endif
 
   #if HAS_WIRED_LCD
+    #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
+      static bool defer_return_to_status;
+    #else
+      static constexpr bool defer_return_to_status = false;
+    #endif
     static void draw_status_screen();
     #if HAS_GRAPHICAL_TFT
       static void tft_idle();

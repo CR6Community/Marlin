@@ -191,7 +191,6 @@
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>" (Requires DIRECT_PIN_CONTROL)
  * M240 - Trigger a camera to take a photograph. (Requires PHOTO_GCODE)
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
- * M256 - Set LCD brightness: "M256 B<brightness>" (0-255). (Requires an LCD with brightness control)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
  * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
@@ -319,12 +318,7 @@
   #define HAS_FAST_MOVES 1
 #endif
 
-enum AxisRelative : uint8_t {
-  LOGICAL_AXIS_LIST(REL_E, REL_X, REL_Y, REL_Z, REL_I, REL_J, REL_K)
-  #if HAS_EXTRUDERS
-    , E_MODE_ABS, E_MODE_REL
-  #endif
-};
+enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
 
 extern const char G28_STR[];
 
@@ -334,31 +328,23 @@ public:
   static uint8_t axis_relative;
 
   static inline bool axis_is_relative(const AxisEnum a) {
-    #if HAS_EXTRUDERS
-      if (a == E_AXIS) {
-        if (TEST(axis_relative, E_MODE_REL)) return true;
-        if (TEST(axis_relative, E_MODE_ABS)) return false;
-      }
-    #endif
+    if (a == E_AXIS) {
+      if (TEST(axis_relative, E_MODE_REL)) return true;
+      if (TEST(axis_relative, E_MODE_ABS)) return false;
+    }
     return TEST(axis_relative, a);
   }
   static inline void set_relative_mode(const bool rel) {
-    axis_relative = rel ? (0 LOGICAL_AXIS_GANG(
-      | _BV(REL_E),
-      | _BV(REL_X), | _BV(REL_Y), | _BV(REL_Z),
-      | _BV(REL_I), | _BV(REL_J), | _BV(REL_K)
-    )) : 0;
+    axis_relative = rel ? _BV(REL_X) | _BV(REL_Y) | _BV(REL_Z) | _BV(REL_E) : 0;
   }
-  #if HAS_EXTRUDERS
-    static inline void set_e_relative() {
-      CBI(axis_relative, E_MODE_ABS);
-      SBI(axis_relative, E_MODE_REL);
-    }
-    static inline void set_e_absolute() {
-      CBI(axis_relative, E_MODE_REL);
-      SBI(axis_relative, E_MODE_ABS);
-    }
-  #endif
+  static inline void set_e_relative() {
+    CBI(axis_relative, E_MODE_ABS);
+    SBI(axis_relative, E_MODE_REL);
+  }
+  static inline void set_e_absolute() {
+    CBI(axis_relative, E_MODE_REL);
+    SBI(axis_relative, E_MODE_ABS);
+  }
 
   #if ENABLED(CNC_WORKSPACE_PLANES)
     /**
@@ -397,7 +383,7 @@ public:
   static void process_subcommands_now(char * gcode);
 
   static inline void home_all_axes(const bool keep_leveling=false) {
-    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(CAN_SET_LEVELING_AFTER_G28, PSTR("G28L0"), G28_STR));
+    process_subcommands_now_P(keep_leveling ? G28_STR : TERN(G28_L0_ENSURES_LEVELING_OFF, PSTR("G28L0"), G28_STR));
   }
 
   #if EITHER(HAS_AUTO_REPORTING, HOST_KEEPALIVE_FEATURE)
@@ -429,7 +415,6 @@ public:
     static uint8_t host_keepalive_interval;
 
     static void host_keepalive();
-    static inline bool host_keepalive_is_paused() { return busy_state >= PAUSED_FOR_USER; }
 
     #define KEEPALIVE_STATE(N) REMEMBER(_KA_, gcode.busy_state, gcode.N)
   #else
@@ -530,7 +515,7 @@ private:
     static void G38(const int8_t subcode);
   #endif
 
-  #if HAS_MESH
+  #if ENABLED(HAS_MESH)
     static void G42();
   #endif
 
@@ -563,30 +548,27 @@ private:
     static void G425();
   #endif
 
-  #if HAS_RESUME_CONTINUE
+  #if ENABLED(HAS_RESUME_CONTINUE)
     static void M0_M1();
   #endif
 
   #if HAS_CUTTER
     static void M3_M4(const bool is_M4);
     static void M5();
+    #if ENABLED(AIR_EVACUATION)
+      static void M10();
+      static void M11();
+    #endif
   #endif
 
-  #if ENABLED(COOLANT_MIST)
-    static void M7();
-  #endif
-
-  #if EITHER(AIR_ASSIST, COOLANT_FLOOD)
-    static void M8();
-  #endif
-
-  #if EITHER(AIR_ASSIST, COOLANT_CONTROL)
+  #if ENABLED(COOLANT_CONTROL)
+    #if ENABLED(COOLANT_MIST)
+      static void M7();
+    #endif
+    #if ENABLED(COOLANT_FLOOD)
+      static void M8();
+    #endif
     static void M9();
-  #endif
-
-  #if ENABLED(AIR_EVACUATION)
-    static void M10();
-    static void M11();
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
@@ -618,7 +600,7 @@ private:
   static void M31();
 
   #if ENABLED(SDSUPPORT)
-    #if HAS_MEDIA_SUBCALLS
+    #if ENABLED(HAS_MEDIA_SUBCALLS)
       static void M32();
     #endif
     #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -655,13 +637,10 @@ private:
   #if ENABLED(PSU_CONTROL)
     static void M80();
   #endif
+
   static void M81();
-
-  #if HAS_EXTRUDERS
-    static void M82();
-    static void M83();
-  #endif
-
+  static void M82();
+  static void M83();
   static void M85();
   static void M92();
 
@@ -669,10 +648,9 @@ private:
     static void M100();
   #endif
 
-  #if HAS_EXTRUDERS
-    static void M104_M109(const bool isM109);
-    FORCE_INLINE static void M104() { M104_M109(false); }
-    FORCE_INLINE static void M109() { M104_M109(true); }
+  #if EXTRUDERS
+    static void M104();
+    static void M109();
   #endif
 
   static void M105();
@@ -700,11 +678,7 @@ private:
 
   static void M114();
   static void M115();
-
-  #if HAS_STATUS_MESSAGE
-    static void M117();
-  #endif
-
+  static void M117();
   static void M118();
   static void M119();
   static void M120();
@@ -726,9 +700,8 @@ private:
   #endif
 
   #if HAS_HEATED_BED
-    static void M140_M190(const bool isM190);
-    FORCE_INLINE static void M140() { M140_M190(false); }
-    FORCE_INLINE static void M190() { M140_M190(true); }
+    static void M140();
+    static void M190();
   #endif
 
   #if HAS_HEATED_CHAMBER
@@ -749,7 +722,7 @@ private:
     static void M149();
   #endif
 
-  #if HAS_COLOR_LEDS
+  #if ENABLED(HAS_COLOR_LEDS)
     static void M150();
   #endif
 
@@ -783,7 +756,7 @@ private:
   static void M204();
   static void M205();
 
-  #if HAS_M206_COMMAND
+  #if ENABLED(HAS_M206_COMMAND)
     static void M206();
   #endif
 
@@ -797,17 +770,17 @@ private:
 
   static void M211();
 
-  #if HAS_MULTI_EXTRUDER
+  #if ENABLED(HAS_MULTI_EXTRUDER)
     static void M217();
   #endif
 
-  #if HAS_HOTEND_OFFSET
+  #if ENABLED(HAS_HOTEND_OFFSET)
     static void M218();
   #endif
 
   static void M220();
 
-  #if HAS_EXTRUDERS
+  #if EXTRUDERS
     static void M221();
   #endif
 
@@ -819,12 +792,8 @@ private:
     static void M240();
   #endif
 
-  #if HAS_LCD_CONTRAST
+  #if ENABLED(HAS_LCD_CONTRAST)
     static void M250();
-  #endif
-
-  #if HAS_LCD_BRIGHTNESS
-    static void M256();
   #endif
 
   #if ENABLED(EXPERIMENTAL_I2CBUS)
@@ -843,7 +812,7 @@ private:
     static void M290();
   #endif
 
-  #if HAS_BUZZER
+  #if ENABLED(HAS_BUZZER)
     static void M300();
   #endif
 
@@ -855,7 +824,7 @@ private:
     static void M302();
   #endif
 
-  #if HAS_PID_HEATING
+  #if ENABLED(HAS_PID_HEATING)
     static void M303();
   #endif
 
@@ -863,7 +832,7 @@ private:
     static void M304();
   #endif
 
-  #if HAS_USER_THERMISTORS
+  #if ENABLED(HAS_USER_THERMISTORS)
     static void M305();
   #endif
 
@@ -904,7 +873,7 @@ private:
     static void M402();
   #endif
 
-  #if HAS_PRUSA_MMU2
+  #if ENABLED(HAS_PRUSA_MMU2)
     static void M403();
   #endif
 
@@ -915,11 +884,11 @@ private:
     static void M407();
   #endif
 
-  #if HAS_FILAMENT_SENSOR
+  #if ENABLED(HAS_FILAMENT_SENSOR)
     static void M412();
   #endif
 
-  #if HAS_MULTI_LANGUAGE
+  #if ENABLED(HAS_MULTI_LANGUAGE)
     static void M414();
   #endif
 
@@ -932,11 +901,11 @@ private:
     static void M425();
   #endif
 
-  #if HAS_M206_COMMAND
+  #if ENABLED(HAS_M206_COMMAND)
     static void M428();
   #endif
 
-  #if HAS_POWER_MONITOR
+  #if ENABLED(HAS_POWER_MONITOR)
     static void M430();
   #endif
 
@@ -987,11 +956,11 @@ private:
     static void M603();
   #endif
 
-  #if HAS_DUPLICATION_MODE
+  #if ENABLED(HAS_DUPLICATION_MODE)
     static void M605();
   #endif
 
-  #if IS_KINEMATIC
+  #if ENABLED(IS_KINEMATIC)
     static void M665();
   #endif
 
@@ -1016,7 +985,7 @@ private:
     static void M810_819();
   #endif
 
-  #if HAS_BED_PROBE
+  #if ENABLED(HAS_BED_PROBE)
     static void M851();
   #endif
 
@@ -1049,7 +1018,7 @@ private:
   #if HAS_TRINAMIC_CONFIG
     static void M122();
     static void M906();
-    #if HAS_STEALTHCHOP
+    #if ENABLED(HAS_STEALTHCHOP)
       static void M569();
     #endif
     #if ENABLED(MONITOR_DRIVER_STATUS)
@@ -1076,7 +1045,7 @@ private:
     static void M907();
     #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
       static void M908();
-      #if HAS_MOTOR_CURRENT_DAC
+      #if ENABLED(HAS_MOTOR_CURRENT_DAC)
         static void M909();
         static void M910();
       #endif

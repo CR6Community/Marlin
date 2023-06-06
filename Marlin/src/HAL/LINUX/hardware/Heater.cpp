@@ -54,7 +54,7 @@ void Heater::update() {
 }
 
 void Heater::interrupt(GpioEvent ev) {
-  // unused
+  // ununsed
 }
 
 #endif // __PLAT_LINUX__

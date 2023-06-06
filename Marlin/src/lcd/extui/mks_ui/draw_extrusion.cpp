@@ -89,7 +89,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       disp_extru_amount();
       break;
     case ID_E_STEP:
-      switch (ABS(uiCfg.extruStep)) {
+      switch (abs(uiCfg.extruStep)) {
         case  1: uiCfg.extruStep = 5; break;
         case  5: uiCfg.extruStep = 10; break;
         case 10: uiCfg.extruStep = 1; break;

@@ -50,7 +50,7 @@ bool CANVAS::ToScreen() {
 }
 
 void CANVAS::SetBackground(uint16_t color) {
-  /* TODO: test and optimize performance */
+  /* TODO: test and optimize perfomance */
   /*
   uint32_t count = (endLine - startLine) * width;
   uint16_t *pixel = buffer;

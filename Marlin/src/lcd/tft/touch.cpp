@@ -93,7 +93,9 @@ void Touch::idle() {
       }
     #endif
 
-    ui.reset_status_timeout(last_touch_ms);
+    #if LCD_TIMEOUT_TO_STATUS
+      ui.return_to_status_ms = last_touch_ms + LCD_TIMEOUT_TO_STATUS;
+    #endif
 
     if (touch_time) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)

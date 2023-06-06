@@ -68,17 +68,15 @@
 
   utf8_char_t FTDI::get_utf8_char_and_inc(const char *&c) {
     utf8_char_t val = *(uint8_t*)c++;
-    if ((val & 0xC0) == 0xC0)
-      while ((*c & 0xC0) == 0x80)
-        val = (val << 8) | *(uint8_t*)c++;
+    while ((*c & 0xC0) == 0x80)
+      val = (val << 8) | *(uint8_t*)c++;
     return val;
   }
 
   utf8_char_t FTDI::get_utf8_char_and_inc(char *&c) {
     utf8_char_t val = *(uint8_t*)c++;
-    if ((val & 0xC0) == 0xC0)
-      while ((*c & 0xC0) == 0x80)
-        val = (val << 8) | *(uint8_t*)c++;
+    while ((*c & 0xC0) == 0x80)
+      val = (val << 8) | *(uint8_t*)c++;
     return val;
   }
 
@@ -97,9 +95,9 @@
    *   fs   - A scaling object used to specify the font size.
    */
 
-  static uint16_t render_utf8_text(CommandProcessor* cmd, int x, int y, const char *str, font_size_t fs, size_t maxlen=SIZE_MAX) {
+  static uint16_t render_utf8_text(CommandProcessor* cmd, int x, int y, const char *str, font_size_t fs) {
     const int start_x = x;
-    while (*str && maxlen--) {
+    while (*str) {
       const utf8_char_t c = get_utf8_char_and_inc(str);
       #ifdef TOUCH_UI_UTF8_CYRILLIC_CHARSET
         CyrillicCharSet::render_glyph(cmd, x, y, fs, c) ||
@@ -140,7 +138,6 @@
    */
 
   void FTDI::load_utf8_bitmaps(CommandProcessor &cmd) {
-    cmd.cmd(SAVE_CONTEXT());
     #ifdef TOUCH_UI_UTF8_CYRILLIC_CHARSET
       CyrillicCharSet::load_bitmaps(cmd);
     #endif
@@ -148,7 +145,6 @@
       WesternCharSet::load_bitmaps(cmd);
     #endif
     StandardCharSet::load_bitmaps(cmd);
-    cmd.cmd(RESTORE_CONTEXT());
   }
 
    /**
@@ -187,8 +183,8 @@
     * Returns: A width in pixels
     */
 
-  uint16_t FTDI::get_utf8_text_width(const char *str, font_size_t fs, size_t maxlen) {
-    return render_utf8_text(nullptr, 0, 0, str, fs, maxlen);
+  uint16_t FTDI::get_utf8_text_width(const char *str, font_size_t fs) {
+    return render_utf8_text(nullptr, 0, 0, str, fs);
   }
 
   uint16_t FTDI::get_utf8_text_width(progmem_str pstr, font_size_t fs) {
@@ -212,10 +208,9 @@
     *
     *   options - Text alignment options (i.e. OPT_CENTERX, OPT_CENTERY, OPT_CENTER or OPT_RIGHTX)
     *
-    *   maxlen - Maximum characters to draw
     */
 
-  void FTDI::draw_utf8_text(CommandProcessor& cmd, int x, int y, const char *str, font_size_t fs, uint16_t options, size_t maxlen) {
+  void FTDI::draw_utf8_text(CommandProcessor& cmd, int x, int y, const char *str, font_size_t fs, uint16_t options) {
     cmd.cmd(SAVE_CONTEXT());
     cmd.cmd(BITMAP_TRANSFORM_A(fs.get_coefficient()));
     cmd.cmd(BITMAP_TRANSFORM_E(fs.get_coefficient()));
@@ -223,14 +218,14 @@
 
     // Apply alignment options
     if (options & OPT_CENTERX)
-      x -= get_utf8_text_width(str, fs, maxlen) / 2;
+      x -= get_utf8_text_width(str, fs) / 2;
     else if (options & OPT_RIGHTX)
-      x -= get_utf8_text_width(str, fs, maxlen);
+      x -= get_utf8_text_width(str, fs);
     if (options & OPT_CENTERY)
       y -= fs.get_height()/2;
 
     // Render the text
-    render_utf8_text(&cmd, x, y, str, fs, maxlen);
+    render_utf8_text(&cmd, x, y, str, fs);
     cmd.cmd(RESTORE_CONTEXT());
   }
 

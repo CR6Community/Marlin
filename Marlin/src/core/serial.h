@@ -29,17 +29,12 @@
 #endif
 
 // Commonly-used strings in serial output
-extern const char NUL_STR[],
-                  SP_X_STR[], SP_Y_STR[], SP_Z_STR[],
-                  SP_A_STR[], SP_B_STR[], SP_C_STR[], SP_E_STR[],
-                  SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[],
-                  SP_I_STR[], SP_J_STR[], SP_K_STR[],
-                  SP_I_LBL[], SP_J_LBL[], SP_K_LBL[],
-                  SP_P_STR[], SP_T_STR[],
+extern const char NUL_STR[], SP_P_STR[], SP_T_STR[],
                   X_STR[], Y_STR[], Z_STR[], E_STR[],
-                  I_STR[], J_STR[], K_STR[],
                   X_LBL[], Y_LBL[], Z_LBL[], E_LBL[],
-                  I_LBL[], J_LBL[], K_LBL[];
+                  SP_A_STR[], SP_B_STR[], SP_C_STR[],
+                  SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
+                  SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];
 
 //
 // Debugging flags for use by M111
@@ -68,7 +63,7 @@ extern uint8_t marlin_debug_flags;
 // Serial redirection
 //
 // Step 1: Find out what the first serial leaf is
-#if HAS_MULTI_SERIAL && defined(SERIAL_CATCHALL)
+#if BOTH(HAS_MULTI_SERIAL, SERIAL_CATCHALL)
   #define _SERIAL_LEAF_1 MYSERIAL
 #else
   #define _SERIAL_LEAF_1 MYSERIAL1
@@ -177,8 +172,8 @@ void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 template <typename T, typename U>
 void SERIAL_PRINT(T x, U y) { SERIAL_IMPL.print(x, y); }
 
-template <typename T>
-void SERIAL_PRINTLN(T x, PrintBase y) { SERIAL_IMPL.println(x, y); }
+template <typename T, typename U>
+void SERIAL_PRINTLN(T x, U y) { SERIAL_IMPL.println(x, y); }
 
 // Flush the serial port
 inline void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
@@ -293,16 +288,16 @@ void serialprintPGM(PGM_P str);
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
-inline void serial_echopair_PGM(PGM_P const s_P, serial_char_t v) { serialprintPGM(s_P); SERIAL_CHAR(v.c); }
-
-inline void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
-inline void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
-inline void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
-
-// Default implementation for types without a specialization. Handles integers.
-template <typename T>
-void serial_echopair_PGM(PGM_P const s_P, T v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
-
+void serial_echopair_PGM(PGM_P const s_P, serial_char_t v);
+void serial_echopair_PGM(PGM_P const s_P, const char *v);
+void serial_echopair_PGM(PGM_P const s_P, char v);
+void serial_echopair_PGM(PGM_P const s_P, int v);
+void serial_echopair_PGM(PGM_P const s_P, long v);
+void serial_echopair_PGM(PGM_P const s_P, float v);
+void serial_echopair_PGM(PGM_P const s_P, double v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned char v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
 inline void serial_echopair_PGM(PGM_P const s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
 inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (uintptr_t)v); }
 
@@ -315,11 +310,11 @@ void serialprint_truefalse(const bool tf);
 void serial_spaces(uint8_t count);
 
 void print_bin(const uint16_t val);
-void print_pos(LINEAR_AXIS_ARGS(const_float_t), PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
+void print_xyz(const_float_t x, const_float_t y, const_float_t z, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
 
-inline void print_pos(const xyz_pos_t &xyz, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr) {
-  print_pos(LINEAR_AXIS_ELEM(xyz), prefix, suffix);
+inline void print_xyz(const xyz_pos_t &xyz, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr) {
+  print_xyz(xyz.x, xyz.y, xyz.z, prefix, suffix);
 }
 
-#define SERIAL_POS(SUFFIX,VAR) do { print_pos(VAR, PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n")); }while(0)
-#define SERIAL_XYZ(PREFIX,V...) do { print_pos(V, PSTR(PREFIX), nullptr); }while(0)
+#define SERIAL_POS(SUFFIX,VAR) do { print_xyz(VAR, PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n")); }while(0)
+#define SERIAL_XYZ(PREFIX,V...) do { print_xyz(V, PSTR(PREFIX), nullptr); }while(0)

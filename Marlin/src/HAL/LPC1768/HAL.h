@@ -112,7 +112,7 @@ extern DefaultSerial1 USBSerial;
   #else
     #error "LCD_SERIAL_PORT must be from 0 to 3. You can also use -1 if the board supports Native USB."
   #endif
-  #if HAS_DGUS_LCD || ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+  #if HAS_DGUS_LCD
     #define SERIAL_GET_TX_BUFFER_FREE() MSerial0.available()
   #endif
 #endif
@@ -198,7 +198,7 @@ constexpr pin_t GET_PIN_MAP_PIN(const int16_t index) {
 // Parse a G-code word into a pin index
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval);
 // P0.6 thru P0.9 are for the onboard SD card
-#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09,
+#define HAL_SENSITIVE_PINS P0_06, P0_07, P0_08, P0_09
 
 #define HAL_IDLETASK 1
 void HAL_idletask();

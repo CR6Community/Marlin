@@ -99,7 +99,7 @@ void GcodeSuite::M600() {
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // If needed, home before parking for filament change
-    home_if_needed(true);
+    if (!all_axes_trusted()) home_all_axes(true);
   #endif
 
   #if HAS_MULTI_EXTRUDER

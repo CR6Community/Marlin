@@ -40,6 +40,7 @@ extern SZ_USART_FIFO  WifiRxFifo;
 extern int readUsartFifo(SZ_USART_FIFO *fifo, int8_t *buf, int32_t len);
 extern int writeUsartFifo(SZ_USART_FIFO * fifo, int8_t * buf, int32_t len);
 void esp_port_begin(uint8_t interrupt);
+extern int usartFifoAvailable(SZ_USART_FIFO *fifo);
 void wifi_delay(int n);
 
 #define ARRAY_SIZE(a) sizeof(a) / sizeof((a)[0])
@@ -279,7 +280,7 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
     switch (state) {
       case begin: // expecting frame start
         c = uploadPort_read();
-        if (c != (uint8_t)0xC0) break;
+        if (c == (uint8_t)0xC0) break;
         state = header;
         needBytes = 2;
         break;
@@ -643,7 +644,10 @@ static const uint32_t FirmwareAddress = 0x00000000, WebFilesAddress = 0x00100000
 
 void ResetWiFiForUpload(int begin_or_end) {
   //#if 0
-  uint32_t start = getWifiTick();
+  uint32_t start, now;
+
+  start = getWifiTick();
+  now = start;
 
   if (begin_or_end == 0) {
     SET_OUTPUT(WIFI_IO0_PIN);
@@ -653,7 +657,7 @@ void ResetWiFiForUpload(int begin_or_end) {
     SET_INPUT_PULLUP(WIFI_IO0_PIN);
 
   WIFI_RESET();
-  while (getWifiTickDiff(start, getWifiTick()) < 500) { /* nada */ }
+  while (getWifiTickDiff(start, now) < 500) now = getWifiTick();
   WIFI_SET();
   //#endif
 }

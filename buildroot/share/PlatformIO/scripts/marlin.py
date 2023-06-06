@@ -7,22 +7,21 @@ import os,shutil
 from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
 
-from os.path import join
-
 def copytree(src, dst, symlinks=False, ignore=None):
    for item in os.listdir(src):
-        s = join(src, item)
-        d = join(dst, item)
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
         if os.path.isdir(s):
             shutil.copytree(s, d, symlinks, ignore)
         else:
             shutil.copy2(s, d)
 
 def replace_define(field, value):
-	for define in env['CPPDEFINES']:
-		if define[0] == field:
-			env['CPPDEFINES'].remove(define)
-	env['CPPDEFINES'].append((field, value))
+        envdefs = env['CPPDEFINES'].copy()
+        for define in envdefs:
+            if define[0] == field:
+                env['CPPDEFINES'].remove(define)
+        env['CPPDEFINES'].append((field, value))
 
 # Relocate the firmware to a new address, such as "0x08005000"
 def relocate_firmware(address):
@@ -66,4 +65,12 @@ def encrypt_mks(source, target, env, new_name):
 		renamed.close()
 
 def add_post_action(action):
-	env.AddPostAction(join("$BUILD_DIR", "${PROGNAME}.bin"), action);
+	env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", action);
+
+# Apply customizations for a MKS Robin
+def prepare_robin(address, ldname, fwname):
+	def encrypt(source, target, env):
+		encrypt_mks(source, target, env, fwname)
+	relocate_firmware(address)
+	custom_ld_script(ldname)
+	add_post_action(encrypt);

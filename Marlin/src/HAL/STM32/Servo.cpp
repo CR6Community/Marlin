@@ -20,9 +20,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -39,7 +37,7 @@ static_assert(COUNT(servoDelay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM
 // This allows all timer interrupt priorities to be managed from a single location in the HAL.
 static uint32_t servo_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), TIM_IRQ_PRIO, TIM_IRQ_SUBPRIO);
 
-// This must be called after the STM32 Servo class has initialized the timer.
+// This must be called after the STM32 Servo class has intialized the timer.
 // It may only be needed after the first call to attach(), but it is possible
 // that is is necessary after every detach() call. To be safe this is currently
 // called after every call to attach().
@@ -109,4 +107,4 @@ void libServo::setInterruptPriority(uint32_t preemptPriority, uint32_t subPriori
 }
 
 #endif // HAS_SERVOS
-#endif // HAL_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

@@ -138,8 +138,8 @@ private:
   spi_dev *spi_d;
   dma_channel spiRxDmaChannel, spiTxDmaChannel;
   dma_dev* spiDmaDev;
-  void (*receiveCallback)() = nullptr;
-  void (*transmitCallback)() = nullptr;
+  void (*receiveCallback)() = NULL;
+  void (*transmitCallback)() = NULL;
 
   friend class SPIClass;
 };

@@ -59,6 +59,7 @@
   #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
+#define E2END           (MARLIN_EEPROM_SIZE - 1)  // 2KB
 
 //
 // Limit Switches
@@ -165,8 +166,9 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
+
+  #define ON_BOARD_SPI_DEVICE                  1  // SPI1
   #define ONBOARD_SD_CS_PIN                 PA4   // Chip select for "System" SD card
-  #define SDSS                              ONBOARD_SD_CS_PIN
 #endif
 
 //
@@ -184,9 +186,4 @@
 
 #ifndef SUICIDE_PIN_INVERTING
   #define SUICIDE_PIN_INVERTING               false
-#endif
-
-#define SUICIDE_PIN                         PC13
-#ifndef SUICIDE_PIN_INVERTING
-  #define SUICIDE_PIN_INVERTING             false
 #endif

@@ -59,7 +59,7 @@ public:
   struct CommandLine {
     char buffer[MAX_CMD_SIZE];      //!< The command buffer
     bool skip_ok;                   //!< Skip sending ok when command is processed?
-    #if HAS_MULTI_SERIAL
+    #if ENABLED(HAS_MULTI_SERIAL)
       serial_index_t port;          //!< Serial port the command was received on
     #endif
   };
@@ -80,11 +80,15 @@ public:
     void advance_pos(uint8_t &p, const int inc) { if (++p >= BUFSIZE) p = 0; length += inc; }
 
     void commit_command(bool skip_ok
-      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
+      #if HAS_MULTI_SERIAL
+        , serial_index_t serial_ind = serial_index_t()
+      #endif
     );
 
     bool enqueue(const char *cmd, bool skip_ok = true
-      OPTARG(HAS_MULTI_SERIAL, serial_index_t serial_ind = serial_index_t())
+      #if HAS_MULTI_SERIAL
+        , serial_index_t serial_ind = serial_index_t()
+      #endif
     );
 
     void ok_to_send();

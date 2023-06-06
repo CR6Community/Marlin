@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 /**
- * DiskIO Interface
+ * DiskIO Interace
  *
  * Interface for low level disk io
  */

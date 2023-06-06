@@ -20,9 +20,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../platforms.h"
-
-#ifdef HAL_STM32
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -165,9 +163,11 @@ static SPISettings spiConfig;
     }
     spiConfig = SPISettings(clock, MSBFIRST, SPI_MODE0);
 
-    SPI.setMISO(SD_MISO_PIN);
-    SPI.setMOSI(SD_MOSI_PIN);
-    SPI.setSCLK(SD_SCK_PIN);
+    #if ENABLED(CUSTOM_SPI_PINS)
+      SPI.setMISO(SD_MISO_PIN);
+      SPI.setMOSI(SD_MOSI_PIN);
+      SPI.setSCLK(SD_SCK_PIN);
+    #endif
 
     SPI.begin();
   }
@@ -226,4 +226,4 @@ static SPISettings spiConfig;
 
 #endif // SOFTWARE_SPI
 
-#endif // HAL_STM32
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
