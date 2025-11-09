@@ -2,7 +2,7 @@
 
 **The firmware Assets on this branch are precompiled for the stock configurations of the Creality CR-6 SE and CR-6 MAX printers only.**
 
-_If you are comfortable using Visual Code Studio and Platformio, you may be able to edit the Configuration.h, Configuration_adv.h and Platformio.ini files provided in the Marlin/config folder to compile a custom version of this firmware for a non-stock printer (e.g. a CR6 printer converted to direct-drive) - please check the [development and compile it yourself](#development-and-compile-it-yourself) section below._
+_If you are comfortable using Visual Code Studio and Platformio, you may be able to edit the Configuration.h, Configuration_adv.h and Platformio.ini files provided in the config folder to compile a custom version of this firmware for a non-stock printer (e.g. a CR6 printer converted to direct-drive) - please check the [development and compile it yourself](#development-and-compile-it-yourself) section below._
 
 ## Downloads
 
