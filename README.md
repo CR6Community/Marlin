@@ -1,18 +1,19 @@
 # Community firmware for the Creality CR-6 3D printer
 
-**This branch is for the Creality CR-6 SE with stock v4.5.2 motherboard and the stock display.**
+**The firmware Assets on this branch are precompiled for the stock configurations of the Creality CR-6 SE and CR-6 MAX printers only.**
 
-_For other configurations for the Creality CR-6 printer (like BigTreeTech SKR board and optional BTT TFT v3.0 display - please check the [branches and development section](#development-and-compile-it-yourself) section below._
+_If you are comfortable using Visual Code Studio and Platformio, you may be able to edit the Configuration.h, Configuration_adv.h and Platformio.ini files provided in the Marlin/config folder to compile a custom version of this firmware for a non-stock printer (e.g. a CR6 printer converted to direct-drive) - please check the [development and compile it yourself](#development-and-compile-it-yourself) section below._
 
 ## Downloads
 
-Please find official releases in the [Releases section](https://github.com/CR6Community/Marlin/releases). 
+Please find official releases in the [Releases section](https://github.com/CR6Community/Marlin/releases).
+**WARNING: ONLY FLASH THE FILES FROM [THE LATEST RELEASE.](https://github.com/CR6Community/Marlin/releases/tag/v2.0.8.1-cr6-community-release-6.1)  EARLIER RELEASES MAY DISABLE YOUR DISPLAY!**
 
-Please read the release notes *very carefully* - the online version on the repo contains all the instructions you need.  
+Please read the release notes *very carefully* - the online version on the repo contains all the instructions you need.
 
-NOTE: the display firmware instructions and files bundled with the original firmware releases are not compatible with newer Creality CR6 printer displays.  We have therefore rebundled the mainboard firmware release files to remove the display firmware and have instead provided links to a Refactored version, as Release 6.1.1.
+NOTE: the display firmware instructions and files bundled with the original firmware releases were not compatible with newer Creality CR6 printer displays.  We have therefore rebundled the mainboard firmware release files as Release 6.1.1, to remove the display firmware and have instead provided links to [a Refactored version of the display firmware.](https://github.com/CR6Community/CR-6-touchscreen/releases/tag/Re-Factored_v1.1)
 
-Ensure you take the right assets: the `firmware[suffix].bin`. You should not download the `Source code` archive if you are downloading with the purpose of directly flashing your printer.
+Ensure you download the Asset for your printer: the `firmware[suffix].bin`. You should not download the `Source code` archive if you are downloading with the purpose of directly flashing your printer.
 
 * Support for the [BTT SKR board](https://damsteen.nl/blog/2020/11/25/how-to-btt-skr-cr6-installation) is available.*
 
@@ -20,7 +21,11 @@ Ensure you take the right assets: the `firmware[suffix].bin`. You should not dow
 
 ### Development and compile-it-yourself
 
-Users who wish to modify the Configuration.h and/or Configuration_adv.h files and recompile the firmware (e.g. to increase the maximum nozzle temperature setting) will need to download and unpack the Source.zip or Source.tar file from the latest formal release section.  (The CODE in the latest extui branch here is not compiling, for reasons we have not yet resolved.)  
+**PLEASE NOTE: The unreleased code from this repository has now been downloaded, patched, and uploaded to a new repository, by Thinkersbluff: https://github.com/Thinkersbluff/CR6Community-Marlin_TB/tree/main-release, as Release 6.2**  
+Release 6.2 has been confirmed to work correctly on one Kickstarter CR6-SE with a CR-ERA-1.1.0.3 motherboard  It should also run on the 4.5.3 motherboard and on CR-MAX printers.  
+There is however one report from a user with a 4.5.2 motherboard that their printer throws a Thermal Runaway error and so their printer will not run Release 6.2.  Your results may vary...
+
+Users who prefer to modify the Release 6.1 Configuration.h and/or Configuration_adv.h files and recompile the version 6.1 firmware (e.g. to increase the maximum nozzle temperature setting) will need to download and unpack the Source.zip or Source.tar file from the latest formal release section.
 As a result of recent updates to Visual Studio Code and Platormio, you will also need to modify the marlin.py file and platformio.ini file (or download the modified versions from the most recent CODE and overwrite those files in the unpacked Source files.)  [Please always check the Wiki](https://github.com/CR6Community/Marlin/wiki) for the latest info, before raising a new Issue on this or other problems you encounter.
 
 There are several example configurations available for your convenience which can be found in the [`config`](./config) directory. Copy the files from the config subdirectory which reflects the needed hardware configuration to the root of the [`Marlin`](./Marlin) directory. To build the firmware Visual Studio Code with the Platform.io plugin installed is needed. Please set the Platform.io environment variable `default_envs` in the file `platformio.ini` to the string found in the previous copied file `platformio-environment.txt`.
@@ -33,7 +38,8 @@ Examples for the following hardware configurations are currently available:
    - BigTreeTech SKR CR-6 (CR-6 SE)
 - BigTreeTech SKR CR-6 with BigTreeTech TFT v3.0
 
-Legacy branches:
+<details>
+<summary><strong>Legacy branches:</strong></summary>
 
 - **[`creality-cr6-merge-attempt`](https://github.com/CR6Community/Marlin/tree/creality-cr6-merge-attempt)** - initial branch based on Creality v1.0.3.7 firmware source code release and upgraded until the community firmware 3 release. All new releases are released from the `extui` branch.
 
@@ -46,18 +52,27 @@ Original source code tracking:
 
 - **[`cr6-btt-dump`](https://github.com/CR6Community/Marlin/tree/cr6-btt-dump) - tracks the changes from the [Big Tree Tech SKR board firmware](https://github.com/bigtreetech/BIGTREETECH-SKR-CR6/tree/master/firmware/BTT-SKR-CR6)** source code (which does not have any git history). It appears the for the moment BTT source code is based on the Creality v1.0.3.7 source code release.
 
-## Purpose of this community firmware
+</details>
 
-This fork of Marlin is meant for:
+<details>
+<summary><strong>Original Purpose of this Community Firmware</strong></summary>
+
+This fork of Marlin was originally meant for:
 
 - Providing up to date and stable Marlin for the CR-6 SE native and [BTT SKR CR6](https://damsteen.nl/blog/2020/11/25/how-to-btt-skr-cr6-installation) motherboard
 - [Expanding the features](https://github.com/CR6Community/CR-6-touchscreen) of the limited Creality CR-6 stock touch screen
 
-Once upstream Marlin supports the strain gauge, [currently being whipped into shape in this PR @Sebazzz has submitted](https://github.com/MarlinFirmware/Marlin/pull/19958), the future of this project will probably be:
+Once upstream Marlin supported the strain gauge, [per this PR @Sebazzz submitted](https://github.com/MarlinFirmware/Marlin/pull/19958), the future of this project was expected to be:
 
 - Still expanding the features of the touch screen and merge upstream
 - Continuously update this fork to the latest Marlin stable versions
 - Provide builds for the CR-6 and SKR boards for the less technically inclined
+
+Unfortunately, the upstream team did not pull release 6.1 into the main Marlin code.  They instead pulled release 3.0 in error, leaving this branch dead-ended and unsupported.
+
+In 2025, Thinkersbluff began trying to reintegrate the Community Firmware UI with Marlin bugfix 2.1.x (approximately 2.1.3-beta3)  If ever that work results in a useable build, Thinkersbluff will update this text with a pointer to that new release.
+
+</details>
 
 ## Community firmware support & communities
 
